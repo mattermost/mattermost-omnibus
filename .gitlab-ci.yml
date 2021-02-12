@@ -1,0 +1,6 @@
+---
+include:
+  - project: mattermost/ci/mattermost-omnibus
+    ref: main
+    file: private.yml
+  - local: version.yml

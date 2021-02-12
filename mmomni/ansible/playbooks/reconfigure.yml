@@ -1,0 +1,124 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    - ansible_python_interpreter: /usr/bin/python3
+    - logsettings_filelocation: /var/log/mattermost
+    - nginx_template: mattermost.conf
+  vars_files:
+    - /etc/mattermost/mmomni.yml
+
+  tasks:
+    - name: "debconf"
+      block:
+
+      - name: "Update debconf variables with json file values"
+        debconf:
+          name: mattermost-omnibus
+          vtype: string
+          question: "{{ item.key }}"
+          value: "{{ item.value }}"
+        with_dict:
+          mattermost-omnibus/domain: "{{ fqdn }}"
+          mattermost-omnibus/email: "{{ email }}"
+        # When the playbook is run as part of a dpkg-reconfigure,
+        # debconf is already updated by the postinst script, so this
+        # task will fail but the value will still be synced
+        ignore_errors: True
+
+    - name: "NGINX"
+      block:
+        - name: "Mattermost nginx setup"
+          block:
+            - name: "SSL certificate"
+              block:
+                - name: "Ensure that NGINX is running"
+                  systemd: "name=nginx state=started"
+
+                - name: "Check if certificate already exists"
+                  stat:
+                    path: "/etc/letsencrypt/live/{{ fqdn }}"
+                  register: certificate_path
+
+                - name: "Generate SSL Certificate"
+                  command: "certbot certonly --nginx -d {{ fqdn }} -n --agree-tos --email \"{{ email }}\""
+                  when: not certificate_path.stat.exists
+
+                - name: "Renew SSL certificate"
+                  command: "certbot renew -n"
+                  when: certificate_path.stat.exists
+              when: https
+
+            - name: "Configure NGINX https template"
+              template:
+                src: "{{ nginx_template }}"
+                dest: /etc/nginx/conf.d/mattermost.conf
+                owner: root
+                group: root
+                mode: 0644
+
+        - name: "Delete default NGINX configuration file"
+          file: "path=/etc/nginx/conf.d/default.conf state=absent"
+
+        - name: "Restart NGINX service with the new configuration"
+          systemd: "name=nginx state=restarted"
+
+    - name: "PostgreSQL"
+      block:
+
+        - name: "Create database user"
+          postgresql_user:
+            name: "{{ db_user }}"
+            password: "{{ db_password }}"
+            encrypted: yes
+
+        - name: "Create database for Mattermost"
+          postgresql_db:
+            name: mattermost
+            owner: "{{ db_user }}"
+
+      become: yes
+      become_user: postgres
+
+    - name: "Mattermost"
+      block:
+        - name: "Create system user"
+          user:
+            name: mattermost
+            password: "!"
+            state: present
+
+        - name: "Ensure file permissions"
+          file:
+            owner: mattermost
+            group: mattermost
+            recurse: true
+            state: directory
+            path: "{{ item }}"
+          with_items:
+            - /opt/mattermost
+            - "{{ data_directory }}"
+            - "{{ logsettings_filelocation }}"
+
+        - name: "Generate mattermost env variables"
+          template:
+            src: mattermost.env
+            dest: /etc/mattermost/mmomni.mattermost.env
+            owner: root
+            group: root
+            mode: 0644
+
+        - name: "Generate systemd service"
+          template:
+            src: mattermost.service
+            dest: /lib/systemd/system/mattermost.service
+            owner: root
+            group: root
+            mode: 0644
+
+        - name: "Enable and restart Mattermost service"
+          systemd:
+            name: mattermost
+            state: restarted
+            enabled: yes
+            daemon_reload: yes

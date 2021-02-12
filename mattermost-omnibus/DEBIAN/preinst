@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    upgrade)
+        # stop service before new package file extraction
+        systemctl stop mattermost || echo "Couldn't stop mattermost service"
+
+        # take a backup, creating the backup directory if it doesn't exist
+        echo "Creating a data only backup before updating the platform"
+        /opt/mattermost/mmomni/bin/mmomni backup --auto || echo "Couldn't take a backup, skipping..."
+        ;;
+esac

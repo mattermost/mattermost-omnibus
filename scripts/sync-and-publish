@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -xeuo pipefail
+
+release=$1
+opt=${2:-false}
+nightly=false
+
+if [[ "${release}" != "bionic" && "${release}" != "focal" ]]; then
+    printf "ERROR: unsupported release %q\n" "${release}" >&2
+    exit 1
+fi
+
+case $opt in
+    false)
+        ;;
+    --nightly)
+        nightly=true
+        ;;
+    *)
+        printf "ERROR: invalid option %q\n" "${opt}" >&2
+        exit 1
+        ;;
+esac
+
+aptly mirror create ${release}-mirror https://mattermost-repository-deb.s3.us-east-1.amazonaws.com ${release}
+aptly mirror update ${release}-mirror
+aptly repo create -distribution=${release} ${release}-repo
+aptly repo import ${release}-mirror ${release}-repo mattermost mattermost-omnibus
+if [[ "$nightly" == "true" ]]; then
+    aptly repo remove ${release}-repo mattermost-omnibus-nightly
+    aptly repo add ${release}-repo mattermost-omnibus-nightly_*_${release}.deb
+else
+    aptly repo add -force-replace ${release}-repo mattermost_*.deb mattermost-omnibus_*_${release}.deb
+fi
+aptly snapshot create ${release}-snapshot from repo ${release}-repo
+cp scripts/aptly.conf $HOME/.aptly.conf
+aptly publish snapshot -batch -force-overwrite -gpg-key="${GPG_KEY_ID}" ${release}-snapshot "s3:remote:"

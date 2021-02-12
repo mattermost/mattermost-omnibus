@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    remove)
+        # reload systemd after removing the service file
+        systemctl daemon-reload || echo "Couldn't reload systemctl daemon"
+        ;;
+    purge)
+        # delete contents of the default data directory
+        rm -rf /var/opt/mattermost
+
+        # delete contents of the default logs directory
+        rm -rf /var/log/mattermost
+
+        # delete the debconf questions
+        . /usr/share/debconf/confmodule
+        db_purge
+
+        # when purging, delete the configuration directory
+        rm -rf /etc/mattermost
+
+        # and the system user and group
+        userdel -r mattermost || echo "Couldn't delete user mattermost"
+        groupdel mattermost || echo "Couldn't delete group mattermost"
+        ;;
+esac

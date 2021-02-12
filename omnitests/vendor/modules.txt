@@ -1,0 +1,108 @@
+# github.com/blang/semver v3.5.1+incompatible
+github.com/blang/semver
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
+# github.com/disintegration/imaging v1.6.2
+github.com/disintegration/imaging
+# github.com/dyatlov/go-opengraph v0.0.0-20180429202543-816b6608b3c8
+github.com/dyatlov/go-opengraph/opengraph
+# github.com/francoispqt/gojay v1.2.13
+github.com/francoispqt/gojay
+# github.com/go-asn1-ber/asn1-ber v1.5.1
+github.com/go-asn1-ber/asn1-ber
+# github.com/google/uuid v1.1.1
+github.com/google/uuid
+# github.com/gorilla/websocket v1.4.2
+github.com/gorilla/websocket
+# github.com/hashicorp/errwrap v1.0.0
+github.com/hashicorp/errwrap
+# github.com/hashicorp/go-multierror v1.1.0
+github.com/hashicorp/go-multierror
+# github.com/magefile/mage v1.10.0
+## explicit
+github.com/magefile/mage
+github.com/magefile/mage/internal
+github.com/magefile/mage/mage
+github.com/magefile/mage/mg
+github.com/magefile/mage/parse
+github.com/magefile/mage/sh
+# github.com/mattermost/go-i18n v1.11.0
+github.com/mattermost/go-i18n/i18n
+github.com/mattermost/go-i18n/i18n/bundle
+github.com/mattermost/go-i18n/i18n/language
+github.com/mattermost/go-i18n/i18n/translation
+# github.com/mattermost/ldap v0.0.0-20191128190019-9f62ba4b8d4d
+github.com/mattermost/ldap
+# github.com/mattermost/logr v1.0.13
+github.com/mattermost/logr
+github.com/mattermost/logr/format
+github.com/mattermost/logr/target
+# github.com/mattermost/mattermost-omnibus/mmomni v0.0.0 => ../mmomni
+## explicit
+github.com/mattermost/mattermost-omnibus/mmomni/model
+# github.com/mattermost/mattermost-server/v5 v5.3.2-0.20201023074133-8c63eb7232d6
+## explicit
+github.com/mattermost/mattermost-server/v5/mlog
+github.com/mattermost/mattermost-server/v5/model
+github.com/mattermost/mattermost-server/v5/services/timezones
+github.com/mattermost/mattermost-server/v5/utils/jsonutils
+github.com/mattermost/mattermost-server/v5/utils/markdown
+# github.com/pborman/uuid v1.2.1
+github.com/pborman/uuid
+# github.com/pelletier/go-toml v1.8.0
+github.com/pelletier/go-toml
+# github.com/philhofer/fwd v1.0.0
+github.com/philhofer/fwd
+# github.com/pkg/errors v0.9.1
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/testify v1.6.1
+## explicit
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/require
+github.com/stretchr/testify/suite
+# github.com/tinylib/msgp v1.1.2
+github.com/tinylib/msgp/msgp
+# github.com/wiggin77/cfg v1.0.2
+github.com/wiggin77/cfg
+github.com/wiggin77/cfg/ini
+github.com/wiggin77/cfg/timeconv
+# github.com/wiggin77/merror v1.0.2
+github.com/wiggin77/merror
+# github.com/wiggin77/srslog v1.0.1
+github.com/wiggin77/srslog
+# go.uber.org/atomic v1.6.0
+go.uber.org/atomic
+# go.uber.org/multierr v1.5.0
+go.uber.org/multierr
+# go.uber.org/zap v1.15.0
+go.uber.org/zap
+go.uber.org/zap/buffer
+go.uber.org/zap/internal/bufferpool
+go.uber.org/zap/internal/color
+go.uber.org/zap/internal/exit
+go.uber.org/zap/zapcore
+# golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
+golang.org/x/crypto/bcrypt
+golang.org/x/crypto/blowfish
+# golang.org/x/image v0.0.0-20200801110659-972c09e46d76
+golang.org/x/image/bmp
+golang.org/x/image/ccitt
+golang.org/x/image/tiff
+golang.org/x/image/tiff/lzw
+# golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc
+golang.org/x/net/html
+golang.org/x/net/html/atom
+# golang.org/x/text v0.3.3
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
+golang.org/x/text/internal/tag
+golang.org/x/text/language
+# gopkg.in/natefinch/lumberjack.v2 v2.0.0
+gopkg.in/natefinch/lumberjack.v2
+# gopkg.in/yaml.v2 v2.3.0
+gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+gopkg.in/yaml.v3
+# github.com/mattermost/mattermost-omnibus/mmomni => ../mmomni

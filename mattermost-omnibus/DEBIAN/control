@@ -1,0 +1,9 @@
+Package: mattermost-omnibus
+Version: %%version%%
+Depends: %%dependencies%%, mattermost (= %%version%%)
+Section: base
+Priority: optional
+Architecture: %%arch%%
+Maintainer: Mattermost Team <info@mattermost.com>
+Description: Mattermost Omnibus Package
+ Metapackage to install Mattermost server and its dependencies

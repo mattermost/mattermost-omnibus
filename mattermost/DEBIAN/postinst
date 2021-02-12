@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    configure)
+        systemctl daemon-reload
+        ;;
+esac

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+function printReconfigureFailed {
+    printf "\n\n" >&2
+    printf "###############################################################\n" >&2
+    printf "# Omnibus configuration failed.                               #\n" >&2
+    printf "#                                                             #\n" >&2
+    printf "# Please run \"dpkg-reconfigure mattermost-omnibus\" to         #\n" >&2
+    printf "# try again or join the Mattermost Community for help at      #\n" >&2
+    printf "# https://mattermost.com/pl/default-ask-mattermost-community/ #\n" >&2
+    printf "###############################################################\n" >&2
+    printf "\n\n" >&2
+}
+
+function printSuccess {
+    printf "\n\n" >&2
+    printf " ___ ___   ____  ______  ______    ___  ____   ___ ___   ___   _____ ______ \n" >&2
+    printf "|   |   | /    ||      ||      |  /  _]|    \ |   |   | /   \ / ___/|      |\n" >&2
+    printf "| _   _ ||  o  ||      ||      | /  [_ |  D  )| _   _ ||     (   \_ |      |\n" >&2
+    printf "|  \_/  ||     ||_|  |_||_|  |_||    _]|    / |  \_/  ||  O  |\__  ||_|  |_|\n" >&2
+    printf "|   |   ||  _  |  |  |    |  |  |   [_ |    \ |   |   ||     |/  \ |  |  |  \n" >&2
+    printf "|   |   ||  |  |  |  |    |  |  |     ||  .  \|   |   ||     |\    |  |  |  \n" >&2
+    printf "|___|___||__|__|  |__|    |__|  |_____||__|\_||___|___| \___/  \___|  |__|  \n" >&2
+    printf "\n" >&2
+    printf "\n" >&2
+    printf "  Installation successful! Join the Mattermost community for questions\n" >&2
+    printf "  and help: https://mattermost.com/pl/default-ask-mattermost-community/\n" >&2
+    printf "\n\n" >&2
+}
+
+case "$1" in
+    configure)
+        if [ -z $MMO_SKIP_INITIAL_CONF ]; then
+            # Ask debconf questions
+            . /usr/share/debconf/confmodule
+
+            db_get mattermost-omnibus/domain
+            mmDomain=$RET
+
+            db_get mattermost-omnibus/email
+            mmEmail=$RET
+
+            # Run Omnibus init
+            /opt/mattermost/mmomni/bin/mmomni init --fqdn "${mmDomain}" --email "${mmEmail}"
+
+            # Reconfigure Omnibus
+            if /opt/mattermost/mmomni/bin/mmomni reconfigure; then
+                # If everything went alright, print a success message
+                printSuccess
+            else
+                printReconfigureFailed
+                exit 0
+            fi
+        else
+            echo "Skipping initial configuration. This is provided only for generating cloud provider images."
+        fi
+        ;;
+esac

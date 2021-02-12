@@ -1,0 +1,11 @@
+Template: mattermost-omnibus/domain
+Type: string
+Description: Mattermost domain name
+ Enter the fully qualified domain name for this Mattermost installation.
+ (E.g.: mattermost.example.com)
+
+Template: mattermost-omnibus/email
+Type: string
+Description: Letsencrypt contact email address
+ Enter an email address to receive communications and alerts from Letsencrypt
+ relating to the SSL certificate for this Mattermost installation.

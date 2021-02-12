@@ -1,0 +1,8 @@
+Package: mattermost
+Version: %%version%%
+Section: base
+Priority: optional
+Architecture: %%arch%%
+Maintainer: Mattermost Team <info@mattermost.com>
+Description: Mattermost Server
+ Mattermost is an open source, private cloud, Slack-alternative.

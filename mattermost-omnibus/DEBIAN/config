@@ -1,0 +1,11 @@
+#/usr/bin/env bash
+
+if [ -z $MMO_SKIP_INITIAL_CONF ]; then
+   . /usr/share/debconf/confmodule
+
+    db_input high mattermost-omnibus/domain || true
+    db_go
+
+    db_input high mattermost-omnibus/email || true
+    db_go
+fi

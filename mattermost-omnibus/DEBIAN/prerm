@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    remove)
+        # stop service before package removal
+        systemctl stop mattermost || echo "Couldn't stop mattermost service"
+        ;;
+esac

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+case "$1" in
+    upgrade)
+        systemctl stop mattermost
+        ;;
+esac

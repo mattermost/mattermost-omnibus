@@ -1,1 +1,1 @@
-python3, python3-psycopg2, ansible, postgresql (>= 12+215.pgdg18.04+1), nginx (>= 1.18.0-1~bionic), certbot (>= 0.31.0-1+ubuntu18.04.1+certbot+1), python-certbot-nginx (>= 0.31.0-1+ubuntu18.04.1+certbot+1), debconf
+python3, python3-psycopg2, ansible, postgresql-13 (>= 13.1-1.pgdg18.04+1), nginx (>= 1.18.0-1~bionic), certbot (>= 0.31.0-1+ubuntu18.04.1+certbot+1), python-certbot-nginx (>= 0.31.0-1+ubuntu18.04.1+certbot+1), debconf

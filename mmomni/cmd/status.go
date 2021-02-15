@@ -43,7 +43,7 @@ func getServiceStatus(name string) (string, int, error) {
 }
 
 func statusCmdF(_ *cobra.Command, _ []string) {
-	services := []string{"nginx", "postgresql@12-main", "mattermost"}
+	services := []string{"nginx", "postgresql@13-main", "mattermost"}
 
 	for _, service := range services {
 		state, pid, err := getServiceStatus(service)

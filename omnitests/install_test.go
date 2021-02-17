@@ -116,7 +116,7 @@ func (s *OmnibusTestSuite) TestUpdate() {
 
 	s.Run("Update to a newer Omnibus version", func() {
 		s.run("apt-get install -y mattermost=5.28.1-0 mattermost-omnibus=5.28.1-0")
-		s.checkURL("http://localhost", 200)
+		s.checkURL(s.URL(), 200, "<title>Mattermost</title>")
 		s.checkAPIVersion("5.28.1")
 	})
 

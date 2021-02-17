@@ -122,3 +122,6 @@
             state: restarted
             enabled: yes
             daemon_reload: yes
+
+    - include: jitsi/reconfigure.yml
+    - include: monitoring/reconfigure.yml

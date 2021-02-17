@@ -1,0 +1,150 @@
+- name: "Monitoring"
+  block:
+    - name: "Monitoring installation"
+      block:
+        - name: "Add grafana repo key"
+          apt_key:
+            id: 4E40DDF6D76E284A4A6780E48C8C34C524098CB6
+            url: https://packages.grafana.com/gpg.key
+            state: present
+        - name: "Add grafana repository"
+          apt_repository:
+            repo: deb https://packages.grafana.com/oss/deb stable main
+            state: present
+        - name: "Install monitoring"
+          apt:
+            pkg:
+              - prometheus
+              - grafana
+            state: present
+        - name: "Configure prometheus"
+          template:
+            src: prometheus.yml
+            dest: /etc/prometheus/prometheus.yml
+            owner: root
+            group: root
+            mode: 0644
+        - name: "Configure grafana"
+          template:
+            src: grafana.ini
+            dest: "/etc/grafana/grafana.ini"
+            owner: root
+            group: root
+            mode: 0644
+
+        - name: "PostgreSQL"
+          block:
+            - name: "Create database for Grafana"
+              postgresql_db:
+                name: grafana
+                owner: "{{ db_user }}"
+
+          become: yes
+          become_user: postgres
+
+      when: monitoring_installed
+
+    - name: "Enable monitoring"
+      block:
+        - name: "Enable and restart prometheus services"
+          systemd:
+            name: prometheus
+            state: restarted
+            enabled: yes
+            daemon_reload: yes
+        - name: "Enable and restart grafana services"
+          systemd:
+            name: grafana-server
+            state: restarted
+            enabled: yes
+            daemon_reload: yes
+        - name: "Create Grafana dashboards"
+          block:
+            - name: Wait for grafana to startup
+              wait_for:
+                port: 3000
+                delay: 1
+                timeout: 10
+            - name: Create prometheus data source
+              grafana_datasource:
+                name: "Prometheus"
+                grafana_url: "http://localhost:3000"
+                grafana_user: "{{ grafana_user }}"
+                grafana_password: "{{ grafana_password }}"
+                org_id: "1"
+                ds_type: "prometheus"
+                ds_url: "http://localhost:9090"
+            - name: Create kpi dashboard
+              grafana_dashboard:
+                grafana_url: "http://localhost:3000"
+                grafana_user: "{{ grafana_user }}"
+                grafana_password: "{{ grafana_password }}"
+                commit_message: "Created by omnibus"
+                state: present
+                path: "/opt/mattermost/mmomni/ansible/playbooks/monitoring/kpi.json"
+                uid: "000000010"
+            - name: Create performance dashboard
+              grafana_dashboard:
+                grafana_url: "http://localhost:3000"
+                grafana_user: "{{ grafana_user }}"
+                grafana_password: "{{ grafana_password }}"
+                commit_message: "Created by omnibus"
+                state: present
+                path: "/opt/mattermost/mmomni/ansible/playbooks/monitoring/performance.json"
+                uid: "000000011"
+            - name: Create performance bonus dashboard
+              grafana_dashboard:
+                grafana_url: "http://localhost:3000"
+                grafana_user: "{{ grafana_user }}"
+                grafana_password: "{{ grafana_password }}"
+                commit_message: "Created by omnibus"
+                state: present
+                path: "/opt/mattermost/mmomni/ansible/playbooks/monitoring/performance_bonus.json"
+                uid: "000000013"
+        - name: "Ensure that NGINX gets the right config"
+          systemd: "name=nginx state=restarted"
+      when: monitoring_enabled and monitoring_installed
+
+    - name: "Disable monitoring"
+      block:
+        - name: "Disable and stop grafana services"
+          systemd:
+            name: grafana-server
+            state: stopped
+            enabled: false
+            daemon_reload: yes
+        - name: "Disable and stop prometheus services"
+          systemd:
+            name: prometheus
+            state: stopped
+            enabled: false
+            daemon_reload: yes
+      when: not monitoring_enabled
+      # The services need to be stopped before performing the
+      # uninstall, but the task will fail if they have not been
+      # installed, so we have to ignore that error
+      ignore_errors: True
+
+    - name: "Monitoring uninstall and cleanup"
+      block:
+        - name: "Uninstall monitoring"
+          apt:
+            pkg:
+              - prometheus
+              - grafana
+            state: absent
+        - name: "Remove grafana repo key"
+          apt_key:
+            id: 66A9CD0595D6AFA247290D3BEF8B479E2DC1389C
+            state: absent
+        - name: "Remove grafana repository"
+          apt_repository:
+            repo: deb https://packages.grafana.com/oss/deb stable main
+            state: absent
+        - name: "Drop database for Grafana"
+          postgresql_db:
+            name: grafana
+            state: absent
+          become: yes
+          become_user: postgres
+      when: not monitoring_installed

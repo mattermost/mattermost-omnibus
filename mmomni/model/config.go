@@ -29,6 +29,18 @@ type Config struct {
 	EnableLocalMode     *bool   `yaml:"enable_local_mode"`
 
 	NginxTemplate *string `yaml:"nginx_template,omitempty"`
+
+	MonitoringInstalled *bool   `yaml:"monitoring_installed"`
+	MonitoringEnabled   *bool   `yaml:"monitoring_enabled"`
+	GrafanaUser         *string `yaml:"grafana_user"`
+	GrafanaPassword     *string `yaml:"grafana_password"`
+
+	JitsiInstalled     *bool   `yaml:"jitsi_installed"`
+	JitsiEnabled       *bool   `yaml:"jitsi_enabled"`
+	JitsiFQDN          *string `yaml:"jitsi_fqdn"`
+	JitsiJVBSecret     *string `yaml:"jitsi_jvb_secret"`
+	JitsiFocusSecret   *string `yaml:"jitsi_focus_secret"`
+	JitsiFocusPassword *string `yaml:"jitsi_focus_password"`
 }
 
 func ReadConfig(path string) (*Config, error) {
@@ -90,6 +102,48 @@ func (c *Config) SetDefaults() {
 	if c.NginxTemplate == nil {
 		c.NginxTemplate = NewString("")
 	}
+
+	// Monitoring
+	if c.MonitoringInstalled == nil {
+		c.MonitoringInstalled = NewBool(false)
+	}
+
+	if c.MonitoringEnabled == nil {
+		c.MonitoringEnabled = NewBool(false)
+	}
+
+	if c.GrafanaUser == nil {
+		c.GrafanaUser = NewString("")
+	}
+
+	if c.GrafanaPassword == nil {
+		c.GrafanaPassword = NewString("")
+	}
+
+	// Jitsi
+	if c.JitsiInstalled == nil {
+		c.JitsiInstalled = NewBool(false)
+	}
+
+	if c.JitsiEnabled == nil {
+		c.JitsiEnabled = NewBool(false)
+	}
+
+	if c.JitsiFQDN == nil {
+		c.JitsiFQDN = NewString("")
+	}
+
+	if c.JitsiJVBSecret == nil {
+		c.JitsiJVBSecret = NewString("")
+	}
+
+	if c.JitsiFocusSecret == nil {
+		c.JitsiFocusSecret = NewString("")
+	}
+
+	if c.JitsiFocusPassword == nil {
+		c.JitsiFocusPassword = NewString("")
+	}
 }
 
 func (c *Config) Clone() (*Config, error) {
@@ -137,6 +191,14 @@ func (c *Config) IsValid() error {
 
 	if *c.DataDirectory == "" {
 		return fmt.Errorf("data_directory cannot be empty")
+	}
+
+	if *c.MonitoringEnabled && (*c.GrafanaUser == "" || *c.GrafanaPassword == "") {
+		return fmt.Errorf("grafana_user and grafana_password must be set if monitoring_enabled is set to true")
+	}
+
+	if *c.JitsiEnabled && (*c.JitsiFQDN == "" || *c.JitsiJVBSecret == "" || *c.JitsiFocusSecret == "" || *c.JitsiFocusPassword == "") {
+		return fmt.Errorf("jitsi_fqdn, jitsi_jvb_secret, jitsi_focus_secret and jitsi_focus_password must be set if jitsi_enabled is set to true")
 	}
 
 	return nil

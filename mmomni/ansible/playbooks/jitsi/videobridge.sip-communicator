@@ -1,0 +1,11 @@
+org.ice4j.ice.harvest.DISABLE_AWS_HARVESTER=true
+org.ice4j.ice.harvest.STUN_MAPPING_HARVESTER_ADDRESSES=meet-jit-si-turnrelay.jitsi.net:443
+org.jitsi.videobridge.TCP_HARVESTER_PORT=4443
+org.jitsi.videobridge.ENABLE_STATISTICS=true
+org.jitsi.videobridge.STATISTICS_TRANSPORT=muc
+org.jitsi.videobridge.xmpp.user.shard.HOSTNAME={{ jitsi_fqdn.split(".") | first }}
+org.jitsi.videobridge.xmpp.user.shard.DOMAIN=auth.{{ jitsi_fqdn }}
+org.jitsi.videobridge.xmpp.user.shard.USERNAME=jvb
+org.jitsi.videobridge.xmpp.user.shard.PASSWORD={{ jitsi_jvb_secret }}
+org.jitsi.videobridge.xmpp.user.shard.MUC_JIDS=JvbBrewery@internal.auth.{{ jitsi_fqdn }}
+org.jitsi.videobridge.xmpp.user.shard.MUC_NICKNAME={{ jitsi_fqdn | to_uuid }}

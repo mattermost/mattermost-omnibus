@@ -181,10 +181,6 @@ func (c *Config) IsValid() error {
 		return fmt.Errorf("database user cannot be empty")
 	}
 
-	if *c.FQDN != "" && *c.Email == "" {
-		return fmt.Errorf("email cannot be empty if fqdn is set")
-	}
-
 	if *c.HTTPS && (*c.FQDN == "" || *c.Email == "") {
 		return fmt.Errorf("fqdn and email must be set if https is enabled")
 	}
@@ -193,12 +189,24 @@ func (c *Config) IsValid() error {
 		return fmt.Errorf("data_directory cannot be empty")
 	}
 
+	if *c.MonitoringEnabled && !*c.MonitoringInstalled {
+		return fmt.Errorf("monitoring_enabled cannot be true if monitoring_installed is false")
+	}
+
 	if *c.MonitoringEnabled && (*c.GrafanaUser == "" || *c.GrafanaPassword == "") {
 		return fmt.Errorf("grafana_user and grafana_password must be set if monitoring_enabled is set to true")
 	}
 
+	if *c.JitsiEnabled && !*c.JitsiInstalled {
+		return fmt.Errorf("jitsi_enabled cannot be true if jitsi_installed is false")
+	}
+
 	if *c.JitsiEnabled && (*c.JitsiFQDN == "" || *c.JitsiJVBSecret == "" || *c.JitsiFocusSecret == "" || *c.JitsiFocusPassword == "") {
 		return fmt.Errorf("jitsi_fqdn, jitsi_jvb_secret, jitsi_focus_secret and jitsi_focus_password must be set if jitsi_enabled is set to true")
+	}
+
+	if *c.JitsiEnabled && (*c.JitsiFQDN == *c.FQDN) {
+		return fmt.Errorf("fqdn and jitsi_fqdn cannot have the same value")
 	}
 
 	return nil

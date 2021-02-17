@@ -185,6 +185,11 @@ func (s *OmnibusTestSuite) purgeOmnibus() {
 	s.pathNotExists(LOGS_DIR)
 }
 
+func (s *OmnibusTestSuite) reconfigureCore() {
+	s.T().Log("Reconfiguring Omnibus Core")
+	s.run("mmomni reconfigure --core-only")
+}
+
 func (s *OmnibusTestSuite) reconfigure() {
 	s.T().Log("Reconfiguring Omnibus")
 	s.run("mmomni reconfigure")
@@ -343,4 +348,19 @@ func (s *OmnibusTestSuite) fileNotContains(file, text string) {
 
 func (s *OmnibusTestSuite) fileContains(file, text string) {
 	s.Require().True(s.doFileContain(file, text))
+}
+
+func (s *OmnibusTestSuite) packageIsInstalled(pkgName string) bool {
+	out := s.run(fmt.Sprintf("apt -qq list %s", pkgName))
+	return strings.Contains(out, "[installed]")
+}
+
+func (s *OmnibusTestSuite) checkPackageIsInstalled(pkgName string) {
+	s.T().Logf("Checking that the package %q is installed", pkgName)
+	s.Require().True(s.packageIsInstalled(pkgName))
+}
+
+func (s *OmnibusTestSuite) checkPackageIsNotInstalled(pkgName string) {
+	s.T().Logf("Checking that the package %q is not installed", pkgName)
+	s.Require().False(s.packageIsInstalled(pkgName))
 }

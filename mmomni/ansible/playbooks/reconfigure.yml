@@ -5,6 +5,9 @@
     - ansible_python_interpreter: /usr/bin/python3
     - logsettings_filelocation: /var/log/mattermost
     - nginx_template: mattermost.conf
+    # core_only is always received from reconfigure, but we set a
+    # default value in case the playbook is run independently
+    - core_only: True
   vars_files:
     - /etc/mattermost/mmomni.yml
 
@@ -123,5 +126,8 @@
             enabled: yes
             daemon_reload: yes
 
-    - include: jitsi/reconfigure.yml
-    - include: monitoring/reconfigure.yml
+    - name: "Components"
+      block:
+        - include: jitsi/reconfigure.yml
+        - include: monitoring/reconfigure.yml
+      when: not core_only|bool

@@ -44,7 +44,7 @@ case "$1" in
             /opt/mattermost/mmomni/bin/mmomni init --fqdn "${mmDomain}" --email "${mmEmail}"
 
             # Reconfigure Omnibus
-            if /opt/mattermost/mmomni/bin/mmomni reconfigure; then
+            if /opt/mattermost/mmomni/bin/mmomni reconfigure --core-only ; then
                 # If everything went alright, print a success message
                 printSuccess
             else

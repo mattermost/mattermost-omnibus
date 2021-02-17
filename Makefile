@@ -34,10 +34,13 @@ $(tarname).tar.gz:
 download: check $(tarname).tar.gz
 
 
-clean: mmomni-clean
+deb-clean:
+	@rm -f *.deb
+
+
+clean: mmomni-clean omnitests-clean deb-clean
 	@echo "Cleaning generated files"
 	@rm -f *.tar.gz
-	@rm -f *.deb
 	@rm -rf build
 
 

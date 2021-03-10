@@ -118,6 +118,15 @@
           apt_repository:
             repo: deb https://packages.prosody.im/debian focal main
             state: present
+        - name: "Configure /etc/hosts"
+          lineinfile:
+            path: /etc/hosts
+            regexp: '^127\.0\.0\.1 omnibus-jitsi'
+            line: 127.0.0.1 omnibus-jitsi {{ jitsi_fqdn }} {{ jitsi_fqdn.split(".") | first }}
+            state: present
+            owner: root
+            group: root
+            mode: '0644'
         - name: "Install jitsi"
           apt:
             pkg:
@@ -183,15 +192,6 @@
 
     - name: "Enable jitsi"
       block:
-        - name: "Configure /etc/hosts"
-          lineinfile:
-            path: /etc/hosts
-            regexp: '^127\.0\.0\.1 omnibus-jitsi'
-            line: 127.0.0.1 omnibus-jitsi {{ jitsi_fqdn }} {{ jitsi_fqdn.split(".") | first }}
-            state: present
-            owner: root
-            group: root
-            mode: '0644'
         - name: "Enable and restart coturn services"
           systemd:
             name: coturn
@@ -222,14 +222,6 @@
 
     - name: "Disable jitsi"
       block:
-        - name: "Remove /etc/hosts entry"
-          lineinfile:
-            path: /etc/hosts
-            regexp: '^127\.0\.0\.1 omnibus-jitsi'
-            state: absent
-            owner: root
-            group: root
-            mode: '0644'
         - name: "Disable and stop coturn services"
           systemd:
             name: coturn
@@ -272,6 +264,14 @@
               - prosody
             state: absent
             purge: true
+        - name: "Remove /etc/hosts entry"
+          lineinfile:
+            path: /etc/hosts
+            regexp: '^127\.0\.0\.1 omnibus-jitsi'
+            state: absent
+            owner: root
+            group: root
+            mode: '0644'
         - name: "Remove jitsi repo key"
           apt_key:
             id: 66A9CD0595D6AFA247290D3BEF8B479E2DC1389C

@@ -94,9 +94,6 @@ VirtualHost "auth.{{ jitsi_fqdn }}"
 Component "focus.{{ jitsi_fqdn }}"
     component_secret = "{{ jitsi_focus_secret }}"
 
-Component "jitsi-videobridge.{{ jitsi_fqdn }}"
-    component_secret = "{{ jitsi_jvb_secret }}"
-
 Component "speakerstats.{{ jitsi_fqdn }}" "speakerstats_component"
     muc_component = "conference.{{ jitsi_fqdn }}"
 

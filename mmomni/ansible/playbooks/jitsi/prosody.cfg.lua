@@ -15,6 +15,8 @@ turncredentials = {
 
 cross_domain_bosh = false;
 consider_bosh_secure = true;
+cross_domain_websocket = true;
+consider_websocket_secure = true;
 -- https_ports = { }; -- Remove this line to prevent listening on port 5284
 
 -- https://ssl-config.mozilla.org/#server=haproxy&version=2.1&config=intermediate&openssl=1.1.0g&guideline=5.4
@@ -44,6 +46,8 @@ VirtualHost "{{ jitsi_fqdn }}"
         -- we need bosh
         modules_enabled = {
             "bosh";
+            "websocket",
+            "smacks",
             "pubsub";
             "ping"; -- Enable mod_ping
             "speakerstats";
@@ -55,6 +59,10 @@ VirtualHost "{{ jitsi_fqdn }}"
         c2s_require_encryption = false
         lobby_muc = "lobby.{{ jitsi_fqdn }}"
         main_muc = "conference.{{ jitsi_fqdn }}"
+        smacks_max_unacked_stanzas = 5;
+        smacks_hibernation_time = 60;
+        smacks_max_hibernated_sessions = 1;
+        smacks_max_old_sessions = 1;
         -- muc_lobby_whitelist = { "recorder.{{ jitsi_fqdn }}" } -- Here we can whitelist jibri to enter lobby enabled rooms
 
 Component "conference.{{ jitsi_fqdn }}" "muc"

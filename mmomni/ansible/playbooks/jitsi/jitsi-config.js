@@ -28,7 +28,7 @@ var config = {
     },
 
     // BOSH URL. FIXME: use XEP-0156 to discover it.
-    // bosh: '//{{ jitsi_fqdn }}/http-bind',
+    bosh: '//{{ jitsi_fqdn }}/http-bind',
 
     // Websocket URL
     websocket: 'wss://{{ jitsi_fqdn }}/xmpp-websocket',

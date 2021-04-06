@@ -3,7 +3,7 @@ plugin_paths = { "/usr/share/jitsi-meet/prosody-plugins/" }
 -- domain mapper options, must at least have domain base set to use the mapper
 muc_mapper_domain_base = "{{ jitsi_fqdn }}";
 
-turncredentials_secret = "9fu59Z6GcVfWaOoH";
+turncredentials_secret = "{{ jitsi_turn_secret }}";
 
 turncredentials = {
   { type = "stun", host = "{{ jitsi_fqdn }}", port = "3478" },

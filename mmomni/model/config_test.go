@@ -119,7 +119,7 @@ func TestConfigIsValid(t *testing.T) {
 		config.JitsiFQDN = NewString("jitsi.localhost")
 		config.JitsiJVBSecret = NewString("jvbsecret")
 
-		require.EqualError(t, config.IsValid(), "jitsi_fqdn, jitsi_jvb_secret, jitsi_focus_secret and jitsi_focus_password must be set if jitsi_enabled is set to true")
+		require.EqualError(t, config.IsValid(), "jitsi_fqdn, jitsi_jvb_secret, jitsi_focus_secret, jitsi_focus_password and jitsi_turn_secret must be set if jitsi_enabled is set to true")
 	})
 
 	t.Run("Jitsi enabled with the same FQDN as Mattermost", func(t *testing.T) {
@@ -132,6 +132,7 @@ func TestConfigIsValid(t *testing.T) {
 		config.JitsiJVBSecret = NewString("jvbsecret")
 		config.JitsiFocusSecret = NewString("focussecret")
 		config.JitsiFocusPassword = NewString("focuspassword")
+		config.JitsiTurnSecret = NewString("turnsecret")
 
 		require.EqualError(t, config.IsValid(), "fqdn and jitsi_fqdn cannot have the same value")
 	})
@@ -145,6 +146,7 @@ func TestConfigIsValid(t *testing.T) {
 		config.JitsiJVBSecret = NewString("jvbsecret")
 		config.JitsiFocusSecret = NewString("focussecret")
 		config.JitsiFocusPassword = NewString("focuspassword")
+		config.JitsiTurnSecret = NewString("turnsecret")
 
 		require.NoError(t, config.IsValid())
 	})

@@ -41,6 +41,7 @@ type Config struct {
 	JitsiJVBSecret     *string `yaml:"jitsi_jvb_secret"`
 	JitsiFocusSecret   *string `yaml:"jitsi_focus_secret"`
 	JitsiFocusPassword *string `yaml:"jitsi_focus_password"`
+	JitsiTurnSecret    *string `yaml:"jitsi_turn_secret"`
 }
 
 func ReadConfig(path string) (*Config, error) {
@@ -141,6 +142,10 @@ func (c *Config) SetDefaults() {
 		c.JitsiFocusSecret = NewString("")
 	}
 
+	if c.JitsiTurnSecret == nil {
+		c.JitsiTurnSecret = NewString("")
+	}
+
 	if c.JitsiFocusPassword == nil {
 		c.JitsiFocusPassword = NewString("")
 	}
@@ -201,8 +206,8 @@ func (c *Config) IsValid() error {
 		return fmt.Errorf("jitsi_enabled cannot be true if jitsi_installed is false")
 	}
 
-	if *c.JitsiEnabled && (*c.JitsiFQDN == "" || *c.JitsiJVBSecret == "" || *c.JitsiFocusSecret == "" || *c.JitsiFocusPassword == "") {
-		return fmt.Errorf("jitsi_fqdn, jitsi_jvb_secret, jitsi_focus_secret and jitsi_focus_password must be set if jitsi_enabled is set to true")
+	if *c.JitsiEnabled && (*c.JitsiFQDN == "" || *c.JitsiJVBSecret == "" || *c.JitsiFocusSecret == "" || *c.JitsiFocusPassword == "" || *c.JitsiTurnSecret == "") {
+		return fmt.Errorf("jitsi_fqdn, jitsi_jvb_secret, jitsi_focus_secret, jitsi_focus_password and jitsi_turn_secret must be set if jitsi_enabled is set to true")
 	}
 
 	if *c.JitsiEnabled && (*c.JitsiFQDN == *c.FQDN) {

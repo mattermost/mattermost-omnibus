@@ -61,8 +61,6 @@ Component "conference.{{ jitsi_fqdn }}" "muc"
     storage = "memory"
     modules_enabled = {
         "muc_meeting_id";
-        "muc_domain_mapper";
-        "token_verification";
     }
     admins = { "focus@auth.{{ jitsi_fqdn }}" }
     muc_room_locking = false

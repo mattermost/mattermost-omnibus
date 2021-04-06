@@ -84,14 +84,14 @@
           question: "{{ item.key }}"
           value: "{{ item.value }}"
         with_dict:
-          jitsi-meet-prosody/jvb-hostname: "{{jitsi_fqdn}}"
-          jicofo/jvb-hostname: "{{jitsi_fqdn}}"
+          jitsi-meet-prosody/jvb-hostname: "{{jitsi_fqdn|default('omnibus-jitsi', true)}}"
+          jicofo/jvb-hostname: "{{jitsi_fqdn|default('omnibus-jitsi', true)}}"
           jicofo/jicofo-auth-user: focus
           jicofo/jicofo-authpassword: "{{jitsi_focus_password}}"
           jicofo/jicofosecret: "{{jitsi_focus_secret}}"
-          jitsi-videobridge/jvb-hostname: "{{jitsi_fqdn}}"
+          jitsi-videobridge/jvb-hostname: "{{jitsi_fqdn|default('omnibus-jitsi', true)}}"
           jitsi-videobridge/jvbsecret: "{{jitsi_jvb_secret}}"
-          jitsi-videobridge2/jvb-hostname: "{{jitsi_fqdn}}"
+          jitsi-videobridge2/jvb-hostname: "{{jitsi_fqdn|default('omnibus-jitsi', true)}}"
           jitsi-videobridge2/jvbsecret: "{{jitsi_jvb_secret}}"
         # When the playbook is run as part of a dpkg-reconfigure,
         # debconf is already updated by the postinst script, so this
@@ -184,14 +184,14 @@
             owner: root
             group: root
             mode: 0644
-        - name: "Register prosody jvb user"
-          shell: "prosodyctl unregister jvb auth.{{ jitsi_fqdn }}; prosodyctl register jvb auth.{{ jitsi_fqdn }} {{ jitsi_jvb_secret }} || true"
-        - name: "Register prosody focus user"
-          shell: "prosodyctl unregister focus auth.{{ jitsi_fqdn }}; prosodyctl register focus auth.{{ jitsi_fqdn }} {{ jitsi_focus_password }} || true"
       when: jitsi_installed
 
     - name: "Enable jitsi"
       block:
+        - name: "Register prosody jvb user"
+          shell: "prosodyctl register jvb auth.{{ jitsi_fqdn }} {{ jitsi_jvb_secret }} || true"
+        - name: "Register prosody focus user"
+          shell: "prosodyctl register focus auth.{{ jitsi_fqdn }} {{ jitsi_focus_password }} || true"
         - name: "Enable and restart coturn services"
           systemd:
             name: coturn

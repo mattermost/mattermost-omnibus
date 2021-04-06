@@ -30,6 +30,7 @@ func (s *OmnibusTestSuite) TestJitsiLifecycle() {
 
 		config := s.config()
 		config.JitsiInstalled = model.NewBool(true)
+		config.JitsiFQDN = model.NewString(jitsiFQDN)
 		s.Require().NoError(config.Save())
 		s.reconfigure()
 

@@ -102,7 +102,7 @@
       block:
         - name: "Add jitsi repo key"
           apt_key:
-            id: 66A9CD0595D6AFA247290D3BEF8B479E2DC1389C
+            id: FFD65A0DA2BEBDEB73D44C8BB4D2D216F1FD7806
             url: https://download.jitsi.org/jitsi-key.gpg.key
             state: present
         - name: "Add prosody repo key"
@@ -274,7 +274,8 @@
             mode: '0644'
         - name: "Remove jitsi repo key"
           apt_key:
-            id: 66A9CD0595D6AFA247290D3BEF8B479E2DC1389C
+            id: FFD65A0DA2BEBDEB73D44C8BB4D2D216F1FD7806
+            url: https://download.jitsi.org/jitsi-key.gpg.key
             state: absent
         - name: "Remove jitsi repository"
           apt_repository:
@@ -283,6 +284,7 @@
         - name: "Remove prosody repo key"
           apt_key:
             id: 107D65A0A148C237FDF00AB47393D7E674D9DBB5
+            url: https://prosody.im/files/prosody-debian-packages.key
             state: absent
         - name: "Remove prosody repository"
           apt_repository:

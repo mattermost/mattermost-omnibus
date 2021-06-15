@@ -127,10 +127,6 @@ func (c *Config) IsValid() error {
 		return fmt.Errorf("database user cannot be empty")
 	}
 
-	if *c.FQDN != "" && *c.Email == "" {
-		return fmt.Errorf("email cannot be empty if fqdn is set")
-	}
-
 	if *c.HTTPS && (*c.FQDN == "" || *c.Email == "") {
 		return fmt.Errorf("fqdn and email must be set if https is enabled")
 	}

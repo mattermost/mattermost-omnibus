@@ -59,6 +59,7 @@ validateAndAddMmKey() {
 ########################################################
 
 release=$(lsb_release -cs)
+curl_binary=$(which curl)
 
 if [[ "$release" != "bionic" && "$release" != "focal" ]]; then
     printf "ERROR: Unsupported ubuntu release: \"%s\"\n" "$release" >&2
@@ -85,14 +86,14 @@ esac
 
 # PostgreSQL
 pgKey=$(mktemp)
-curl https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
+"$curl_binary" https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
 pgFingerprint=$(getFingerprintFromFile "$pgKey")
 validateAndAddPgKey "$pgFingerprint" "$pgKey"
 add-apt-repository -y "deb http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
 
 # Mattermost Omnibus
 mmKey=$(mktemp)
-curl https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
+"$curl_binary" https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
 mmFingerprint=$(getFingerprintFromFile "$mmKey")
 validateAndAddMmKey "$mmFingerprint" "$mmKey"
 apt-add-repository -y "deb https://deb.packages.mattermost.com ${release} main"

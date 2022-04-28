@@ -2,9 +2,5 @@
 variables:
   MAJOR: 6
   MINOR: 6
-<<<<<<< HEAD
-  PATCH: 0
-=======
   PATCH: 1
->>>>>>> 00855a6 (Update latest version to 6.6.1 (#74))
   REVISION: 0

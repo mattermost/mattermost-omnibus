@@ -1,8 +1,6 @@
 [Unit]
 Description=Mattermost
 After=network.target
-After=postgresql.service
-Requires=postgresql.service
 
 [Service]
 Type=notify
@@ -14,6 +12,7 @@ WorkingDirectory=/opt/mattermost
 User=mattermost
 Group=mattermost
 LimitNOFILE=49152
+Environment="MM_INSTALL_TYPE=ubuntu-testing"
 
 [Install]
-WantedBy=postgresql.service
+WantedBy=multi-user.target

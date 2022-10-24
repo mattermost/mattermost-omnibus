@@ -48,11 +48,15 @@ mattermost_$(version)-$(revision).deb:
 	mkdir -p ${build_path}/${install_path}
 	tar xf ${tarname}.tar.gz --strip-components=1 -C ${build_path}/${install_path}
 
+	@echo "Renaming config file"
+	mv ${build_path}/opt/mattermost/config/config.json \
+	   ${build_path}/opt/mattermost/config/config.defaults.json
+
 	@echo "Creating binary links"
-	mkdir -p ${build_path}/usr/local/bin
-	ln -s ${install_path}/bin/mattermost ${build_path}/usr/local/bin/
-	ln -s ${install_path}/bin/platform ${build_path}/usr/local/bin/
-	ln -s ${install_path}/bin/mmctl ${build_path}/usr/local/bin/
+	mkdir -p ${build_path}/usr/bin
+	ln -s ${install_path}/bin/mattermost ${build_path}/usr/bin/
+	ln -s ${install_path}/bin/platform ${build_path}/usr/bin/
+	ln -s ${install_path}/bin/mmctl ${build_path}/usr/bin/
 
 	@echo "Copying systemd service"
 	mkdir -p ${build_path}/lib/systemd/system

@@ -1,7 +1,36 @@
 #!/usr/bin/env bash
 
+set -e
+IS_UPGRADE=false
+
 case "$1" in
     configure)
+
+    MATTERMOST_USER=${MATTERMOST_USER:-mattermost}
+    MATTERMOST_GROUP=${MATTERMOST_GROUP:-mattermost}
+    if ! getent group "$MATTERMOST_GROUP" > /dev/null 2>&1 ; then
+       addgroup --system "$MATTERMOST_GROUP" --quiet > /dev/null 2>&1
+    fi
+    if ! id $MATTERMOST_USER > /dev/null 2>&1 ; then
+       adduser --system --home /opt/mattermost --no-create-home \
+       --ingroup "$MATTERMOST_GROUP" --disabled-password --shell /bin/false \
+       "$MATTERMOST_USER" > /dev/null 2>&1
+    fi
+
+    # Set user permisssions on /opt/mattermost
+    chown -R $MATTERMOST_USER:$MATTERMOST_GROUP /opt/mattermost
+
+    # If $1=configure and $2 is set, this is an upgrade
+    if [ "$2" != "" ]; then
+        IS_UPGRADE=true
+    fi
+
+    if [ "$IS_UPGRADE" != "true" ]; then
         systemctl daemon-reload
-        ;;
+        systemctl enable mattermost
+    else
+        systemctl daemon-reload
+        systemctl start mattermost > /dev/null 2>&1
+    fi
+    ;;
 esac

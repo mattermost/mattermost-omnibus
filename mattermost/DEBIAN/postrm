@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 
+set -e
+
 case "$1" in
     remove)
-        systemctl daemon-reload
-        ;;
+
+    MATTERMOST_USER=${MATTERMOST_USER:-mattermost}
+    MATTERMOST_GROUP=${MATTERMOST_GROUP:-mattermost}
+    if id $MATTERMOST_USER > /dev/null 2>&1 ; then
+        deluser "$MATTERMOST_USER" > /dev/null 2>&1
+    fi
+    if getent group "$MATTERMOST_GROUP" > /dev/null 2>&1 ; then
+       delgroup "$MATTERMOST_GROUP" > /dev/null 2>&1
+    fi
+
+    systemctl daemon-reload
+    ;;
 esac

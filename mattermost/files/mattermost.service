@@ -12,7 +12,7 @@ WorkingDirectory=/opt/mattermost
 User=mattermost
 Group=mattermost
 LimitNOFILE=49152
-Environment="MM_INSTALL_TYPE=ubuntu-testing"
+Environment="MM_INSTALL_TYPE=deb_package"
 
 [Install]
 WantedBy=multi-user.target

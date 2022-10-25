@@ -1,7 +1,22 @@
 #!/usr/bin/env bash
 
-set -e
+TRUE_REG='^([tT][rR][uU][eE]|[yY]|[yY][eE][sS]|1)$'
+FALSE_REG='^([fF][aA][lL][sS][eE]|[nN]|[nN][oO]|0)$'
 IS_UPGRADE=false
+
+IS_DEBUG=${IS_DEBUG:-false}
+if [[ $IS_DEBUG =~ $TRUE_REG ]]; then
+    set -o xtrace
+fi
+
+IS_STRICT=${IS_STRICT:-false}
+if [[ $IS_STRICT =~ $TRUE_REG ]]; then
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+fi
+
+
 
 case "$1" in
     upgrade)
@@ -13,7 +28,7 @@ case "$1" in
         IS_UPGRADE=true
     fi
 
-    if [ "$IS_UPGRADE" == "true" ]; then
+    if [[ "$IS_UPGRADE" =~ $TRUE_REG ]]; then
         # Cleaning up old files
         find /opt/mattermost/ /opt/mattermost/client/ -mindepth 1 -maxdepth 1 \! \( -type d \( -path /opt/mattermost/client -o -path /opt/mattermost/client/plugins -o -path /opt/mattermost/config -o -path /opt/mattermost/logs -o -path /opt/mattermost/plugins -o -path /opt/mattermost/data \) -prune \) -exec rm -r {} \;
     fi

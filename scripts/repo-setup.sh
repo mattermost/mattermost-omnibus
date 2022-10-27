@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+if [[ ! $# -eq 0 ]]; then
+    ARGUMENT_1="$1"
+else
+    ARGUMENT_1="all"
+fi
+
 # receives a gpg key and returns its fingerprint
 getFingerprint() {
     gpg --with-colons --import-options show-only --import | sed -n 2p | cut -d ':' -f 10
@@ -67,36 +73,46 @@ if [[ "$release" != "bionic" && "$release" != "focal" ]]; then
 fi
 
 # check root or sudo usage
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root"
+    exit
+fi
 
-# Nginx
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
-nginxFingerprint=$(apt-key export ABF5BD827BD9BF62 2>/dev/null | getFingerprint)
-validateNginxKey "$nginxFingerprint"
-add-apt-repository -y "deb https://nginx.org/packages/ubuntu/ ${release} nginx"
+# Install Nginx,Certbot,PostgreSQL repositories in case ARGUMENT_1 == all
+if [[ $ARGUMENT_1 == "all" ]]; then
+    # Nginx
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
+    nginxFingerprint=$(apt-key export ABF5BD827BD9BF62 2>/dev/null | getFingerprint)
+    validateNginxKey "$nginxFingerprint"
+    add-apt-repository -y "deb https://nginx.org/packages/ubuntu/ ${release} nginx"
 
-# Certbot
-case "$release" in
-    bionic)
-        add-apt-repository -y ppa:certbot/certbot
-        ;;
-    focal)
-        add-apt-repository universe
-        ;;
-esac
+    # Certbot
+    case "$release" in
+        bionic)
+            add-apt-repository -y ppa:certbot/certbot
+            ;;
+        focal)
+            add-apt-repository universe
+            ;;
+    esac
 
-# PostgreSQL
-pgKey=$(mktemp)
-"$curl_binary" https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
-pgFingerprint=$(getFingerprintFromFile "$pgKey")
-validateAndAddPgKey "$pgFingerprint" "$pgKey"
-add-apt-repository -y "deb http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
+    # PostgreSQL
+    pgKey=$(mktemp)
+    "$curl_binary" https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
+    pgFingerprint=$(getFingerprintFromFile "$pgKey")
+    validateAndAddPgKey "$pgFingerprint" "$pgKey"
+    add-apt-repository -y "deb http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
+fi
 
-# Mattermost Omnibus
-mmKey=$(mktemp)
-"$curl_binary" https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
-mmFingerprint=$(getFingerprintFromFile "$mmKey")
-validateAndAddMmKey "$mmFingerprint" "$mmKey"
-apt-add-repository -y "deb https://deb.packages.mattermost.com ${release} main"
+if [[ $ARGUMENT_1 == "all" || $ARGUMENT_1 == "mattermost" ]] ; then
+    # Mattermost Omnibus
+    mmKey=$(mktemp)
+    "$curl_binary" https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
+    mmFingerprint=$(getFingerprintFromFile "$mmKey")
+    validateAndAddMmKey "$mmFingerprint" "$mmKey"
+    apt-add-repository -y "deb https://deb.packages.mattermost.com ${release} main"
+fi
 
-# Update to retrieve all the newly added repositories.
+
+# Update to retrieve the newly added repositories.
 apt update

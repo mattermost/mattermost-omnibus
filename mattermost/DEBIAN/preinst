@@ -16,8 +16,6 @@ if [[ $IS_STRICT =~ $TRUE_REG ]]; then
     set -o pipefail
 fi
 
-
-
 case "$1" in
     upgrade)
 

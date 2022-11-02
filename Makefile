@@ -89,6 +89,7 @@ mattermost-omnibus_$(version)-$(revision)_%.deb:
 	@echo "Creating base directory for Omnibus v${version}-${revision} ${release}"
 	rm -rf ${build_path}
 	mkdir -p ${build_path}/${install_path}/mmomni/bin
+	mkdir -p ${build_path}/etc/systemd/system/mattermost.service.d/
 
 	@echo "Copying mmomni CLI"
 	cp bin/mmomni ${build_path}/${install_path}/mmomni/bin/
@@ -103,6 +104,9 @@ mattermost-omnibus_$(version)-$(revision)_%.deb:
 	sed -i -e "s/%%dependencies%%/${dependencies}/g" ${build_path}/DEBIAN/control
 	sed -i -e "s/%%version%%/${version}-${revision}/g" ${build_path}/DEBIAN/control
 	sed -i -e "s/%%arch%%/${arch}/g" ${build_path}/DEBIAN/control
+
+	@echo "Copy mattermost service overrides for omnibus"
+	cp mattermost/files/omnibus-overrides.conf ${build_path}/etc/systemd/system/mattermost.service.d/
 
 	@echo "Building Mattermost Omnibus v${version}-${revision} ${release} package"
 ifeq ($(use_docker), true)
@@ -123,6 +127,7 @@ mattermost-omnibus-nightly_$(version)-$(revision)_%.deb:
 	@echo "Creating base directory for Omnibus v${version}-${revision} ${release}"
 	rm -rf ${build_path}
 	mkdir -p ${build_path}/${install_path}/mmomni/bin
+	mkdir -p ${build_path}/etc/systemd/system/mattermost.service.d/
 
 	@echo "Copying mmomni CLI"
 	cp bin/mmomni ${build_path}/${install_path}/mmomni/bin/
@@ -138,6 +143,9 @@ mattermost-omnibus-nightly_$(version)-$(revision)_%.deb:
 	sed -i -e "s/%%version%%/${version}-${revision}/g" ${build_path}/DEBIAN/control
 	sed -i -e "s/%%arch%%/${arch}/g" ${build_path}/DEBIAN/control
 	sed -i -e "s/Package: mattermost-omnibus/Package: mattermost-omnibus-nightly/g" ${build_path}/DEBIAN/control
+
+	@echo "Copy mattermost service overrides for omnibus"
+	cp mattermost/files/omnibus-overrides.conf ${build_path}/etc/systemd/system/mattermost.service.d/
 
 	@echo "Building Mattermost Omnibus Nightly v${version}-${revision} ${release} package"
 ifeq ($(use_docker), true)

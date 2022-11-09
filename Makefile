@@ -159,7 +159,7 @@ endif
 	@echo "Build for Mattermost Omnibus Nightly v${version}-${revision} ${release} succeeded"
 
 
-mattermost-omnibus: bin/mmomni mattermost-omnibus_$(version)-$(revision)_bionic.deb mattermost-omnibus_$(version)-$(revision)_focal.deb
+mattermost-omnibus: bin/mmomni mattermost-omnibus_$(version)-$(revision)_bionic.deb mattermost-omnibus_$(version)-$(revision)_focal.deb mattermost-omnibus_$(version)-$(revision)_jammy.deb
 
 
-mattermost-omnibus-nightly: bin/mmomni mattermost-omnibus-nightly_$(version)-$(revision)_bionic.deb mattermost-omnibus-nightly_$(version)-$(revision)_focal.deb
+mattermost-omnibus-nightly: bin/mmomni mattermost-omnibus-nightly_$(version)-$(revision)_bionic.deb mattermost-omnibus-nightly_$(version)-$(revision)_focal.deb mattermost-omnibus-nightly_$(version)-$(revision)_jammy.deb

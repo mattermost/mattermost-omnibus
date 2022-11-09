@@ -5,7 +5,7 @@ release=$1
 opt=${2:-false}
 nightly=false
 
-if [[ "${release}" != "bionic" && "${release}" != "focal" ]]; then
+if [[ "${release}" != "bionic" && "${release}" != "focal" != "jammy" ]]; then
     printf "ERROR: unsupported release %q\n" "${release}" >&2
     exit 1
 fi

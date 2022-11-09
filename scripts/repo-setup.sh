@@ -9,7 +9,7 @@ fi
 
 # receives a gpg key and returns its fingerprint
 getFingerprint() {
-    gpg --with-colons --import-options show-only --import | sed -n 2p | cut -d ':' -f 10
+    gpg --with-colons --import-options show-only --import 2>/dev/null | sed -n 2p | cut -d ':' -f 10
 }
 
 getFingerprintFromFile() {
@@ -29,6 +29,18 @@ validateNginxKey() {
     fi
 }
 
+validatePgKey() {
+    pgFingerprint=$1
+    # source: https://wiki.postgresql.org/wiki/Apt
+    expectedPgFingerprint=B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+
+    if [[ "$pgFingerprint" != "$expectedPgFingerprint" ]]; then
+        printf "ERROR: Invalid postgresql key fingerprint\n" >&2
+        apt-key del 7FCC7D46ACCC4CF8
+        exit 1
+    fi
+}
+
 validateAndAddPgKey() {
     pgFingerprint=$1
     pgKey=$2
@@ -43,6 +55,17 @@ validateAndAddPgKey() {
 
     cat "$pgKey" | sudo apt-key add -
     rm "$pgKey"
+}
+
+validateMmKey() {
+    mmFingerprint=$1
+    expectedMmFingerprint=A1B31D46F0F3A10B02CF2D44F8F2C31744774B28
+
+    if [[ "$mmFingerprint" != "$expectedMmFingerprint" ]]; then
+        printf "ERROR: Invalid mattermost key fingerprint\n" >&2
+        apt-key del F8F2C31744774B28
+        exit 1
+    fi
 }
 
 validateAndAddMmKey() {
@@ -78,41 +101,72 @@ if [ "$EUID" -ne 0 ]; then
     exit
 fi
 
+
 # Install Nginx,Certbot,PostgreSQL repositories in case ARGUMENT_1 == all
 if [[ $ARGUMENT_1 == "all" ]]; then
-    # Nginx
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
-    nginxFingerprint=$(apt-key export ABF5BD827BD9BF62 2>/dev/null | getFingerprint)
-    validateNginxKey "$nginxFingerprint"
-    add-apt-repository -y "deb https://nginx.org/packages/ubuntu/ ${release} nginx"
 
+    case "$release" in
+        bionic | focal )
+            # Nginx
+            apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
+            nginxFingerprint=$(apt-key export ABF5BD827BD9BF62 2>/dev/null | getFingerprint)
+            validateNginxKey "$nginxFingerprint"
+            add-apt-repository -y "deb https://nginx.org/packages/ubuntu/ ${release} nginx"
+            # PostgreSQL
+            pgKey=$(mktemp)
+            "$curl_binary" -s https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
+            pgFingerprint=$(getFingerprintFromFile "$pgKey")
+            validateAndAddPgKey "$pgFingerprint" "$pgKey"
+            add-apt-repository -y "deb http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
+            ;;
+        jammy)
+            # Nginx
+            "$curl_binary" -s https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
+            nginxFingerprint=$(getFingerprintFromFile "/usr/share/keyrings/nginx-archive-keyring.gpg")
+            validateNginxKey "$nginxFingerprint"
+            echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
+            http://nginx.org/packages/ubuntu ${release} nginx" | tee /etc/apt/sources.list.d/nginx.list  &>/dev/null
+            # PostgreSQL
+            "$curl_binary" -s https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/postgresql-archive-keyring.gpg >/dev/null
+            pgFingerprint=$(getFingerprintFromFile "/usr/share/keyrings/postgresql-archive-keyring.gpg")
+            validatePgKey "$pgFingerprint"
+            echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] \
+            http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list  &>/dev/null
+            ;;
+    esac
     # Certbot
     case "$release" in
         bionic)
             add-apt-repository -y ppa:certbot/certbot
             ;;
-        focal)
-            add-apt-repository universe
+        focal | jammy )
+            add-apt-repository -y universe
             ;;
     esac
-
-    # PostgreSQL
-    pgKey=$(mktemp)
-    "$curl_binary" https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
-    pgFingerprint=$(getFingerprintFromFile "$pgKey")
-    validateAndAddPgKey "$pgFingerprint" "$pgKey"
-    add-apt-repository -y "deb http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
 fi
 
 if [[ $ARGUMENT_1 == "all" || $ARGUMENT_1 == "mattermost" ]] ; then
-    # Mattermost Omnibus
-    mmKey=$(mktemp)
-    "$curl_binary" https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
-    mmFingerprint=$(getFingerprintFromFile "$mmKey")
-    validateAndAddMmKey "$mmFingerprint" "$mmKey"
-    apt-add-repository -y "deb https://deb.packages.mattermost.com ${release} main"
+    case "$release" in
+        bionic | focal )
+            # Mattermost Omnibus
+            mmKey=$(mktemp)
+            "$curl_binary" -s https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
+            mmFingerprint=$(getFingerprintFromFile "$mmKey")
+            validateAndAddMmKey "$mmFingerprint" "$mmKey"
+            apt-add-repository -y "deb https://deb.packages.mattermost.com ${release} main"
+            ;;
+        jammy)
+            # Mattermost Omnibus
+            "$curl_binary" -s  https://deb.packages.mattermost.com/pubkey.gpg | gpg --dearmor \
+            | sudo tee /usr/share/keyrings/mattermost-archive-keyring.gpg >/dev/null
+            mmFingerprint=$(getFingerprintFromFile "/usr/share/keyrings/mattermost-archive-keyring.gpg")
+            validateMmKey "$mmFingerprint"
+            echo "deb [signed-by=/usr/share/keyrings/mattermost-archive-keyring.gpg] \
+            https://deb.packages.mattermost.com ${release} main" | tee /etc/apt/sources.list.d/mattermost.list  &>/dev/null
+            ;;
+    esac
 fi
-
-
 # Update to retrieve the newly added repositories.
 apt update

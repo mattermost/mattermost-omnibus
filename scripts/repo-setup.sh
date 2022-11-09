@@ -67,7 +67,7 @@ validateAndAddMmKey() {
 release=$(lsb_release -cs)
 curl_binary=$(which curl)
 
-if [[ "$release" != "bionic" && "$release" != "focal" ]]; then
+if [[ "$release" != "bionic" && "$release" != "focal" && "$release" != "jammy" ]]; then
     printf "ERROR: Unsupported ubuntu release: \"%s\"\n" "$release" >&2
     exit 1
 fi

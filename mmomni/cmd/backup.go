@@ -139,46 +139,59 @@ func backupCmdF(cmd *cobra.Command, _ []string) {
 
 func addFilesToTarball(w *tar.Writer, filePaths []string, basePath string) error {
 	for _, path := range filePaths {
-		file, err := os.Open(path)
+		// this is broken into a separate function to allow the file handle to
+		// be closed inside the loop, whilst still retaining auto-closing
+		// utility of defer
+		err := addFileToTarball(w, path, basePath)
+
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+	}
 
-		stat, err := file.Stat()
+	return nil
+}
+
+func addFileToTarball(w *tar.Writer, path string, basePath string) error {
+	file, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	stat, err := file.Stat()
+	if err != nil {
+		return err
+	}
+
+	if stat.IsDir() {
+		files, err := ioutil.ReadDir(path)
 		if err != nil {
 			return err
 		}
 
-		if stat.IsDir() {
-			files, err := ioutil.ReadDir(path)
-			if err != nil {
-				return err
-			}
+		dirFilePaths := make([]string, len(files))
+		for i, file := range files {
+			dirFilePaths[i] = filepath.Join(path, file.Name())
+		}
 
-			dirFilePaths := make([]string, len(files))
-			for i, file := range files {
-				dirFilePaths[i] = filepath.Join(path, file.Name())
-			}
+		if err := addFilesToTarball(w, dirFilePaths, filepath.Join(basePath, stat.Name())); err != nil {
+			return err
+		}
+	} else {
+		header := &tar.Header{
+			Name:    filepath.Join(basePath, stat.Name()),
+			Size:    stat.Size(),
+			Mode:    int64(stat.Mode()),
+			ModTime: stat.ModTime(),
+		}
 
-			if err := addFilesToTarball(w, dirFilePaths, filepath.Join(basePath, stat.Name())); err != nil {
-				return err
-			}
-		} else {
-			header := &tar.Header{
-				Name:    filepath.Join(basePath, stat.Name()),
-				Size:    stat.Size(),
-				Mode:    int64(stat.Mode()),
-				ModTime: stat.ModTime(),
-			}
+		if err := w.WriteHeader(header); err != nil {
+			return err
+		}
 
-			if err := w.WriteHeader(header); err != nil {
-				return err
-			}
-
-			if _, err := io.Copy(w, file); err != nil {
-				return err
-			}
+		if _, err := io.Copy(w, file); err != nil {
+			return err
 		}
 	}
 

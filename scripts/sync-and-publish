@@ -23,7 +23,7 @@ case $opt in
 esac
 
 aptly mirror create ${release}-mirror https://mattermost-repository-deb.s3.us-east-1.amazonaws.com ${release}
-aptly mirror update ${release}-mirror
+aptly -ignore-checksums mirror update ${release}-mirror
 aptly repo create -distribution=${release} ${release}-repo
 aptly repo import ${release}-mirror ${release}-repo mattermost mattermost-omnibus
 if [[ "$nightly" == "true" ]]; then

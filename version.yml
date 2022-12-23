@@ -3,4 +3,4 @@ variables:
   MAJOR: 7
   MINOR: 5
   PATCH: 2
-  REVISION: 0
+  REVISION: 1

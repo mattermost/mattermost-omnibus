@@ -60,6 +60,7 @@ func initCmdF(cmd *cobra.Command, _ []string) {
 	config.FQDN = model.NewString(ParseFQDN(fqdn))
 	config.Email = model.NewString(email)
 	config.EnableLocalMode = model.NewBool(true)
+	config.ClientMaxBodySize = model.NewString("50M")
 
 	// when initializing the configuration, we save it without
 	// validating it, so the file gets written to disk and the user

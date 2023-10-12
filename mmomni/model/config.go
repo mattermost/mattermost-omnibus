@@ -27,6 +27,7 @@ type Config struct {
 	DataDirectory       *string `yaml:"data_directory"`
 	EnablePluginUploads *bool   `yaml:"enable_plugin_uploads"`
 	EnableLocalMode     *bool   `yaml:"enable_local_mode"`
+	ClientMaxBodySize   *string `yaml:"client_max_body_size"`
 
 	NginxTemplate *string `yaml:"nginx_template,omitempty"`
 }
@@ -85,6 +86,10 @@ func (c *Config) SetDefaults() {
 
 	if c.EnableLocalMode == nil {
 		c.EnableLocalMode = NewBool(true)
+	}
+
+	if c.ClientMaxBodySize == nil {
+		c.ClientMaxBodySize = NewString("50M")
 	}
 
 	if c.NginxTemplate == nil {

@@ -87,18 +87,28 @@ validateAndAddMmKey() {
 # Repo setup script for Mattermost Omnibus installation.
 ########################################################
 
-release=$(lsb_release -cs)
-curl_binary=$(which curl)
-
-if [[ "$release" != "bionic" && "$release" != "focal" && "$release" != "jammy" ]]; then
-    printf "ERROR: Unsupported ubuntu release: \"%s\"\n" "$release" >&2
+fail()
+{
+    echo "ERROR: $*" >&2
     exit 1
+}
+
+release=$(lsb_release -cs)
+curl_binary=$(which curl || fail "Please install curl")
+
+case "$release" in
+    bionic | focal | jammy)    OS="ubuntu";;
+    bullseye)                  OS="debian";;
+    *)                         OS="unsupported";;
+esac
+
+if [[ "$OS" = "unsupported" ]]; then
+    fail "Unsupported OS release: $release"
 fi
 
 # check root or sudo usage
 if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root"
-    exit
+    fail "Please run as root"
 fi
 
 
@@ -106,12 +116,12 @@ fi
 if [[ $ARGUMENT_1 == "all" ]]; then
 
     case "$release" in
-        bionic | focal )
+        bionic | focal)
             # Nginx
             apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
             nginxFingerprint=$(apt-key export ABF5BD827BD9BF62 2>/dev/null | getFingerprint)
             validateNginxKey "$nginxFingerprint"
-            add-apt-repository -y "deb https://nginx.org/packages/ubuntu/ ${release} nginx"
+            add-apt-repository -y "deb https://nginx.org/packages/$OS/ ${release} nginx"
             # PostgreSQL
             pgKey=$(mktemp)
             "$curl_binary" -s https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
@@ -119,14 +129,14 @@ if [[ $ARGUMENT_1 == "all" ]]; then
             validateAndAddPgKey "$pgFingerprint" "$pgKey"
             add-apt-repository -y "deb http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
             ;;
-        jammy)
+        jammy | bullseye)
             # Nginx
             "$curl_binary" -s https://nginx.org/keys/nginx_signing.key | gpg --dearmor \
             | sudo tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
             nginxFingerprint=$(getFingerprintFromFile "/usr/share/keyrings/nginx-archive-keyring.gpg")
             validateNginxKey "$nginxFingerprint"
             echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
-            http://nginx.org/packages/ubuntu ${release} nginx" | tee /etc/apt/sources.list.d/nginx.list  &>/dev/null
+            http://nginx.org/packages/$OS ${release} nginx" | tee /etc/apt/sources.list.d/nginx.list  &>/dev/null
             # PostgreSQL
             "$curl_binary" -s https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor \
             | sudo tee /usr/share/keyrings/postgresql-archive-keyring.gpg >/dev/null
@@ -141,7 +151,7 @@ if [[ $ARGUMENT_1 == "all" ]]; then
         bionic)
             add-apt-repository -y ppa:certbot/certbot
             ;;
-        focal | jammy )
+        focal | jammy)
             add-apt-repository -y universe
             ;;
     esac
@@ -149,7 +159,7 @@ fi
 
 if [[ $ARGUMENT_1 == "all" || $ARGUMENT_1 == "mattermost" ]] ; then
     case "$release" in
-        bionic | focal )
+        bionic | focal)
             # Mattermost Omnibus
             mmKey=$(mktemp)
             "$curl_binary" -s https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
@@ -157,7 +167,11 @@ if [[ $ARGUMENT_1 == "all" || $ARGUMENT_1 == "mattermost" ]] ; then
             validateAndAddMmKey "$mmFingerprint" "$mmKey"
             apt-add-repository -y "deb https://deb.packages.mattermost.com ${release} main"
             ;;
-        jammy)
+        jammy | bullseye)
+            # Mattermost does not support debian release names, so we set it to jammy here for bullseye
+            # this could be fixed by providing a serverside repo symlink
+            [ "$release" = "bullseye" ] && release="jammy"
+
             # Mattermost Omnibus
             "$curl_binary" -s  https://deb.packages.mattermost.com/pubkey.gpg | gpg --dearmor \
             | sudo tee /usr/share/keyrings/mattermost-archive-keyring.gpg >/dev/null

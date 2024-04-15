@@ -90,7 +90,7 @@ validateAndAddMmKey() {
 release=$(lsb_release -cs)
 curl_binary=$(which curl)
 
-if [[ "$release" != "bionic" && "$release" != "focal" && "$release" != "jammy" ]]; then
+if [[ "$release" != "focal" && "$release" != "jammy" ]]; then
     printf "ERROR: Unsupported ubuntu release: \"%s\"\n" "$release" >&2
     exit 1
 fi
@@ -106,7 +106,7 @@ fi
 if [[ $ARGUMENT_1 == "all" ]]; then
 
     case "$release" in
-        bionic | focal )
+        focal )
             # Nginx
             apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
             nginxFingerprint=$(apt-key export ABF5BD827BD9BF62 2>/dev/null | getFingerprint)
@@ -138,9 +138,6 @@ if [[ $ARGUMENT_1 == "all" ]]; then
     esac
     # Certbot
     case "$release" in
-        bionic)
-            add-apt-repository -y ppa:certbot/certbot
-            ;;
         focal | jammy )
             add-apt-repository -y universe
             ;;
@@ -149,7 +146,7 @@ fi
 
 if [[ $ARGUMENT_1 == "all" || $ARGUMENT_1 == "mattermost" ]] ; then
     case "$release" in
-        bionic | focal )
+        focal )
             # Mattermost Omnibus
             mmKey=$(mktemp)
             "$curl_binary" -s https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"

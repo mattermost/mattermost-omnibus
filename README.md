@@ -1,5 +1,6 @@
 # Mattermost Omnibus
 
+
 Generates Mattermost debian packages easy that makes it trivial to
 deploy the platform in an empty instance.
 

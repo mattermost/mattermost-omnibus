@@ -1,5 +1,6 @@
 #/usr/bin/env bash
 
+
 if [ -z $MMO_SKIP_INITIAL_CONF ]; then
    . /usr/share/debconf/confmodule
 

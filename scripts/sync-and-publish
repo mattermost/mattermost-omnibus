@@ -4,6 +4,8 @@ set -xeuo pipefail
 release=$1
 opt=${2:-false}
 nightly=false
+origin="Mattermost"
+label="Mattermost Omnibus"
 
 if [[ "${release}" != "focal"  && "${release}" != "jammy" && "${release}" != "noble" ]]; then
     printf "ERROR: unsupported release %q\n" "${release}" >&2
@@ -34,4 +36,4 @@ else
 fi
 aptly snapshot create ${release}-snapshot from repo ${release}-repo
 cp scripts/aptly.conf $HOME/.aptly.conf
-aptly publish snapshot -batch -force-overwrite -gpg-key="${GPG_KEY_ID}" ${release}-snapshot "s3:remote:"
+aptly publish snapshot -batch -force-overwrite -gpg-key="${GPG_KEY_ID}" -origin="${origin}" -label="${label}" ${release}-snapshot "s3:remote:"

@@ -4,6 +4,7 @@ set -xeuo pipefail
 release=$1
 opt=${2:-false}
 nightly=false
+mirror_release="$release"
 
 if [[ "${release}" != "focal"  && "${release}" != "jammy" && "${release}" != "noble" ]]; then
     printf "ERROR: unsupported release %q\n" "${release}" >&2
@@ -16,16 +17,19 @@ case $opt in
     --nightly)
         nightly=true
         ;;
+    --mirror-release=*)
+        mirror_release="${opt##--mirror-release=}"
+        ;;
     *)
         printf "ERROR: invalid option %q\n" "${opt}" >&2
         exit 1
         ;;
 esac
 
-aptly mirror create ${release}-mirror https://mattermost-repository-deb.s3.us-east-1.amazonaws.com ${release}
-aptly mirror update ${release}-mirror
+aptly mirror create ${mirror_release}-mirror https://mattermost-repository-deb.s3.us-east-1.amazonaws.com ${mirror_release}
+aptly mirror update ${mirror_release}-mirror
 aptly repo create -distribution=${release} ${release}-repo
-aptly repo import ${release}-mirror ${release}-repo mattermost mattermost-omnibus
+aptly repo import ${mirror_release}-mirror ${release}-repo mattermost mattermost-omnibus
 if [[ "$nightly" == "true" ]]; then
     aptly repo remove ${release}-repo mattermost-omnibus-nightly
     aptly repo add ${release}-repo mattermost-omnibus-nightly_*_${release}.deb

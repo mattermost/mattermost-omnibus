@@ -88,6 +88,7 @@ validateAndAddMmKey() {
 ########################################################
 
 release=$(lsb_release -cs)
+architecture=$(dpkg-architecture -q DEB_HOST_ARCH)
 curl_binary=$(which curl)
 
 if [[ "$release" != "focal" && "$release" != "jammy" ]]; then
@@ -111,13 +112,13 @@ if [[ $ARGUMENT_1 == "all" ]]; then
             apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
             nginxFingerprint=$(apt-key export ABF5BD827BD9BF62 2>/dev/null | getFingerprint)
             validateNginxKey "$nginxFingerprint"
-            add-apt-repository -y "deb https://nginx.org/packages/ubuntu/ ${release} nginx"
+            add-apt-repository -y "deb [arch=$architecture] https://nginx.org/packages/ubuntu/ ${release} nginx"
             # PostgreSQL
             pgKey=$(mktemp)
             "$curl_binary" -s https://www.postgresql.org/media/keys/ACCC4CF8.asc -o "$pgKey"
             pgFingerprint=$(getFingerprintFromFile "$pgKey")
             validateAndAddPgKey "$pgFingerprint" "$pgKey"
-            add-apt-repository -y "deb http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
+            add-apt-repository -y "deb [arch=$architecture] http://apt.postgresql.org/pub/repos/apt ${release}-pgdg main"
             ;;
         jammy)
             # Nginx
@@ -152,7 +153,7 @@ if [[ $ARGUMENT_1 == "all" || $ARGUMENT_1 == "mattermost" ]] ; then
             "$curl_binary" -s https://deb.packages.mattermost.com/pubkey.gpg -o "$mmKey"
             mmFingerprint=$(getFingerprintFromFile "$mmKey")
             validateAndAddMmKey "$mmFingerprint" "$mmKey"
-            apt-add-repository -y "deb https://deb.packages.mattermost.com ${release} main"
+            apt-add-repository -y "deb [arch=$architecture] https://deb.packages.mattermost.com ${release} main"
             ;;
         jammy)
             # Mattermost Omnibus

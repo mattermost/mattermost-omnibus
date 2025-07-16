@@ -1,6 +1,6 @@
 ---
 variables:
   MAJOR: 10
-  MINOR: 9
+  MINOR: 10
   PATCH: 1
   REVISION: 0

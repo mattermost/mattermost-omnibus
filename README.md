@@ -1,7 +1,7 @@
 # Mattermost Omnibus
 
 > **⚠️ DEPRECATION NOTICE**  
-> This project will be deprecated starting with Mattermost v11 in October 2025. The last release of mattermost-omnibus will be v10.12. Please consider migrating to alternative deployment methods such as Docker, Kubernetes, or the official deployment guide available at [docs.mattermost.com/deployment-guide/server/server-deployment-planning.html](https://docs.mattermost.com/deployment-guide/server/server-deployment-planning.html).
+> This project has been deprecated starting with Mattermost v11. The last release of mattermost-omnibus is v10.12. Please consider migrating to alternative deployment methods such as Docker, Kubernetes, or the official deployment guide available at [docs.mattermost.com/deployment-guide/server/server-deployment-planning.html](https://docs.mattermost.com/deployment-guide/server/server-deployment-planning.html).
 
 ## Migration Guide
 
@@ -34,7 +34,7 @@ This will create a tarball containing:
 
 These settings will help you configure your new deployment's database connection, SSL certificates, nginx settings, and Mattermost server configuration.
 
-Bask up server config at `/opt/mattermost/config`.
+Also back up your server configuration files located at `/opt/mattermost/config`.
 
 ### 2. Choose Your New Deployment Method
 
@@ -97,11 +97,6 @@ For assistance with migration, consult the [Mattermost community forums](https:/
 ---
 
 # Original Project Documentation
-
-> **Note:** The following documentation is for the legacy mattermost-omnibus project and will only be supported through v10.12.
-
-Generates Mattermost debian packages easy that makes it trivial to
-deploy the platform in an empty instance.
 
 ## Installation
 

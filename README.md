@@ -43,7 +43,6 @@ Select one of the officially supported deployment methods:
 - **Docker**: Recommended for single-server deployments
 - **Kubernetes**: Best for scalable, cloud-native deployments  
 - **Binary Installation**: Direct server installation with manual configuration
-- **GitLab Omnibus**: If you're already using GitLab
 
 Refer to the [deployment planning guide](https://docs.mattermost.com/deployment-guide/server/server-deployment-planning.html) to choose the best option for your needs.
 

@@ -21,6 +21,8 @@ type Config struct {
 
 	DBUser              *string `yaml:"db_user"`
 	DBPassword          *string `yaml:"db_password"`
+	DBHost              *string `yaml:"db_host"`
+	DBUseSSL            *string `yaml:"db_use_ssl"`
 	FQDN                *string `yaml:"fqdn"`
 	Email               *string `yaml:"email"`
 	HTTPS               *bool   `yaml:"https"`
@@ -62,6 +64,14 @@ func (c *Config) SetDefaults() {
 
 	if c.DBPassword == nil {
 		c.DBPassword = NewString("")
+	}
+
+	if c.DBHost == nil {
+		c.DBHost = NewString("localhost")
+	}
+
+	if c.DBUseSSL == nil {
+		c.DBUseSSL = NewString("disable")
 	}
 
 	if c.FQDN == nil {
@@ -130,6 +140,10 @@ func (c *Config) PreSave() (*Config, error) {
 func (c *Config) IsValid() error {
 	if *c.DBUser == "" {
 		return fmt.Errorf("database user cannot be empty")
+	}
+
+	if *c.DBUseSSL != "disable" && *c.DBUseSSL != "require" {
+		return fmt.Errorf("db_use_ssl must be either 'disable' or 'require'")
 	}
 
 	if *c.HTTPS && (*c.FQDN == "" || *c.Email == "") {

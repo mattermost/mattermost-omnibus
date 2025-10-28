@@ -2,5 +2,5 @@
 variables:
   MAJOR: 10
   MINOR: 5
-  PATCH: 12
+  PATCH: 13
   REVISION: 0
